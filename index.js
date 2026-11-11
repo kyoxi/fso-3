@@ -18,7 +18,8 @@ const personSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    minlength: 3
+    minlength: 3,
+    unique: true
   },
   number: {
     type: String,
@@ -34,6 +35,7 @@ const personSchema = new mongoose.Schema({
 
 const Person = mongoose.model('Person', personSchema)
 
+// 1. Hae kaikki henkilöt tietokannasta
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(persons => {
     response.json(persons)
@@ -108,6 +110,8 @@ const errorHandler = (error, request, response, next) => {
     return response.status(400).send({ error: 'malformatted id' })
   } else if (error.name === 'ValidationError') {
     return response.status(400).json({ error: error.message })
+  } else if (error.code === 11000) {
+    return response.status(400).json({ error: 'Nimen täytyy olla uniikki (tämän niminen henkilö on jo luettelossa)' })
   }
 
   next(error)
