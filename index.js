@@ -22,7 +22,13 @@ const personSchema = new mongoose.Schema({
   },
   number: {
     type: String,
-    required: true
+    required: true,
+    validate: {
+      validator: function(v) {
+        return /^\d{2,3}-\d{5,}$/.test(v) || /^\d{8,}$/.test(v)
+      },
+      message: props => `${props.value} ei ole validi puhelinnumero! Numeron tulee olla muodossa XX-XXXXXXX tai XXX-XXXXXXX (vähintään 8 numeroa yhteensä).`
+    }
   }
 })
 
@@ -95,7 +101,6 @@ app.put('/api/persons/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-// Virheenkäsittelijämiddleware
 const errorHandler = (error, request, response, next) => {
   console.error(error.message)
 
